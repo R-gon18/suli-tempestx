@@ -36,12 +36,16 @@ library(ggplot2)
 qplot(speed, dist, data = cars, size = speed)
 ```
 
+## Metadata
+
 ```{r read_metadata}
 library(readr)
 library(dplyr)
 collar_map <- read_csv("collar_map.csv")
 print(collar_map)
 ```
+
+## Read data
 
 ```{r read_data}
 # Find all the data files to read and put into 'file' character vector
@@ -53,5 +57,7 @@ dat <- read_tsv(files[1],
                               "CO2_Flux", "Collar", "CH4_Flux"), 
                 col_types = "_Tdcddd___",
                 skip = 1)
-```
 
+# Make a quick plot
+qplot(Timestamp, CO2_Flux, data = dat)
+```
