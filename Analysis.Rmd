@@ -73,6 +73,11 @@ left_join(dat, collar_map) -> by_treatment
 by_treatment %>% group_by(Treatment) %>%
   summarise(n = n(), 
             avg_CO2 = mean(CO2_Flux, na.rm = TRUE), 
-            avg_CH4 = mean(CH4_Flux))
+            avg_CH4 = mean(CH4_Flux)) -> dat_summary
+```
+
+```{r}
+qplot(Treatment, CO2_Flux, data = by_treatment, geom = "boxplot")
+qplot(Treatment, CH4_Flux, data = by_treatment, geom = "boxplot") + coord_cartesian(ylim = c(-2, 1))
 ```
 
