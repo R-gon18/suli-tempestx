@@ -37,8 +37,62 @@ library(babynames)
 qplot(year, name, data = head(babynames), size = n)
 ```
 
-```{r}
-collar_map <- read.csv("collar_map.csv")
+## Metadata
+
+```{r read_metadata}
+library(readr)
+library(dplyr)
+collar_map <- read_csv("collar_map.csv")
 print(collar_map)
+```
+
+## Read data
+
+```{r read_data}
+# Find all the data files to read and put into 'file' character vector
+files <- list.files("data/", pattern = "*.txt", full.names = TRUE)
+
+# Read the first file
+dat <- read_tsv(files[1],
+                col_names = c("Timestamp", "Obs", "Port",
+                              "CO2_Flux", "Collar", "CH4_Flux"), 
+                col_types = "_Tdcddd___",
+                skip = 1)
+
+# Make a quick plot
+qplot(Timestamp, CO2_Flux, data = dat)
+
+# start here with steps below...    dat %>% ...
+```
+
+## Show data summaries
+
+To do:
+
+1. `filter` out (remove) all rows with zero flux
+2. Output from R's summary() command
+3. Match treatments from collar_map with observational data (pull them into a new column)
+
+Hint: go read about `left_join()`, which _merges_ to data frames together
+
+4. Calculate the mean flux for each treatment
+
+Starting at slide 68 in https://rpubs.com/bpbond/581300 is information about
+using the `dplyr` package to perform most of the tasks above.
+
+## Slow cars
+
+```{r}
+cars %>% 
+  filter(speed < 10) ->
+  slow_cars
+print(slow_cars)
+
+# Use left_join() to merge based on a common column
+# For example:
+x <- head(cars)
+colors <- data.frame(speed = c(4,7,9), color = c("red","blue","yellow"))
+x %>% left_join(colors)  # there's no entry for speed 8, so this produces a blank
+colors %>% left_join(x)
 ```
 
