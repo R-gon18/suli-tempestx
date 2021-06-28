@@ -45,6 +45,34 @@ print(collar_map)
 ```{r}
 ltc_map <- read.csv("ltc_map.csv")
 ltc_map %>% print()
-filter(exp_flux != 0)
+```
+
+```{r read_data}
+# Find all the data files to read and put into 'file' character vector
+files <- list.files("data/", pattern = "*.txt", full.names = TRUE)
+# Read the first file
+library(readr)
+dat <- read_tsv(files[1],
+                col_names = c("Timestamp", "Obs", "Port",
+                              "CO2_Flux", "Collar", "CH4_Flux"), 
+                col_types = "_Tdcddd___",
+                skip = 1)
+```
+
+```{r}
+# Make a quick plot
+qplot(Timestamp, CO2_Flux, data = dat)
+# start here with steps below...    dat %>% ...
+dat <- dat %>% filter(CO2_Flux != 0)
+dat %>% summary() %>% print()
+```
+
+```{r}
+collar_map <- collar_map %>% select(Collar, Treatment)
+left_join(dat, collar_map) -> by_treatment
+by_treatment %>% group_by(Treatment) %>%
+  summarise(n = n(), 
+            avg_CO2 = mean(CO2_Flux, na.rm = TRUE), 
+            avg_CH4 = mean(CH4_Flux))
 ```
 
