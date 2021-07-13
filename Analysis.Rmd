@@ -14,16 +14,21 @@ library(ggplot2)
 library(dplyr)
 ```
 
+## Collar Map Summary
+# Matching plot to treatment
 ```{r}
 collar_map <- read.csv("collar_map.csv")
 print(collar_map)
 ```
 
+## LTC Map Summary
+# Matching port to collar
 ```{r}
 ltc_map <- read.csv("ltc_map.csv")
 ltc_map %>% print()
 ```
 
+# Code to read in the data
 ```{r read_data}
 # Find all the data files to read and put into 'file' character vector
 files <- list.files("data/", pattern = "*.txt", full.names = TRUE)
@@ -36,25 +41,42 @@ dat <- read_tsv(files[1],
                 skip = 1)
 ```
 
-```{r}
-# Make a quick plot
-qplot(Timestamp, CO2_Flux, data = dat)
-# start here with steps below...    dat %>% ...
-dat <- dat %>% filter(CO2_Flux != 0)
-dat %>% summary() %>% print()
-```
 
+# Match Data with Treatment
 ```{r}
 collar_map <- collar_map %>% select(Collar, Treatment)
-left_join(dat, collar_map) -> by_treatment
+dat %>% filter(CO2_Flux != 0) %>% left_join(collar_map) -> by_treatment
 by_treatment %>% group_by(Treatment) %>%
   summarise(n = n(), 
             avg_CO2 = mean(CO2_Flux, na.rm = TRUE), 
             avg_CH4 = mean(CH4_Flux)) -> dat_summary
+dat_summary %>% print()
 ```
 
+## Quick Plot of CO2 Flux Over Time, Colored By Treatment
+```{r}
+# Make a quick plot
+qplot(Timestamp, CO2_Flux, data = by_treatment, color = Treatment) + ggtitle("CO2 Flux Over Time")
+```
+
+## Boxplot of CO2 Flux by Treatment
 ```{r}
 qplot(Treatment, CO2_Flux, data = by_treatment, geom = "boxplot")
+```
+
+## Boxplot of CH4 Flux by Treatment
+```{r}
 qplot(Treatment, CH4_Flux, data = by_treatment, geom = "boxplot") + coord_cartesian(ylim = c(-2, 1))
+```
+
+## Statistics
+```{r}
+#Basically we want to start by asking “is the flux a function of treatment”, i.e. does the treatment grouping affect the measured flux significantly (very much like the weight ~ group example)
+mod_co2 <- lm(CO2_Flux ~ Treatment, data = by_treatment)
+summary(mod_co2)
+anova(mod_co2)
+mod_ch4 <- lm(CH4_Flux ~ Treatment, data = by_treatment)
+summary(mod_ch4)
+anova(mod_ch4)
 ```
 
