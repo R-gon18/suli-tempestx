@@ -29,11 +29,11 @@ ltc_map %>% print()
 files <- list.files("data/", pattern = "*.txt", full.names = TRUE)
 # Read the first file
 library(readr)
-dat <- read_tsv(files[1],
-                col_names = c("Timestamp", "Obs", "Port",
-                              "CO2_Flux", "Collar", "CH4_Flux"), 
-                col_types = "_Tdcddd___",
-                skip = 1)
+dat <- bind_rows(lapply(files, read_tsv, 
+                        col_names = c("Timestamp", "Obs", "Port",
+                                      "CO2_Flux", "Collar", "CH4_Flux"), 
+                        col_types = "_Tdcddd_",
+                        skip = 1))
 ```
 
 ```{r}
